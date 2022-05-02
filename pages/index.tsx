@@ -27,7 +27,7 @@ export default function Home({ moviesData, length }: {
 
   useEffect(() => {
     handlePageChange(1)
-  }, [limit])
+  }, [limit]) //eslint-disable-next-line react-hooks/exhaustive-deps
 
   return (
     <div className={styles.container}>
