@@ -10,7 +10,6 @@ export default function Home({ moviesData, length }: {
     length: number
   }) {
 
-  console.log(length);
   const [movies, setMovies] = useState(moviesData)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(12)
@@ -128,5 +127,5 @@ export const getStaticProps: GetStaticProps = async () => {
         moviesData: [],
         length: 0
     }
-}
+  }
 }
