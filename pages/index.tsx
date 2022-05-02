@@ -19,7 +19,7 @@ export default function Home({ moviesData, length }: {
 
   const handlePageChange = async (page: number) => {
 		setPage(page);
-		const { data } = await axios.get<Data>(`http://localhost:3000/api/movies/${page}?limit=${limit}`)
+		const { data } = await axios.get<Data>(`${process.env.DOMAIN}/api/movies/${page}?limit=${limit}`)
 		setMovies(data.movies)
 	}
 
@@ -112,7 +112,7 @@ export default function Home({ moviesData, length }: {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await axios.get<Data>('http://localhost:3000/api/movies/1');
+  const { data } = await axios.get<Data>(`${process.env.DOMAIN}/api/movies/1`);
 
   return {
       props: {
