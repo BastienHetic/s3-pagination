@@ -1,9 +1,34 @@
-import type { NextPage } from 'next'
+import type { GetStaticProps } from 'next'
+import { Data, Movie } from '../pages/api/movies/[page]'
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
-const Home: NextPage = () => {
+export default function Home({ moviesData, length }: {
+    moviesData: Array<Movie>,
+    length: number
+  }) {
+
+  const [movies, setMovies] = useState(moviesData)
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(12)
+
+  const handlePageChange = async (page: number) => {
+		setPage(page);
+		const { data } = await axios.get<Data>(`http://localhost:3000/api/movies/${page}?limit=${limit}`)
+		setMovies(data.movies)
+	}
+
+  const handleNbResultChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nbResult = parseInt(event.target.value);
+    setLimit(nbResult > 0 ? nbResult : 12);
+  }
+
+  useEffect(() => {
+    handlePageChange(1)
+  }, [limit])
+
   return (
     <div className={styles.container}>
       <Head>
@@ -13,60 +38,83 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
+        <h1 className={`${styles.title} text-3xl font-bold`}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <table className="table-auto w-6/12 m-3 rounded-t-lg rounded-b-md overflow-hidden">
+          <thead className="bg-slate-200">
+          <tr>
+            <th className="px-4 py-3 text-left text-slate-400">Titre</th>
+            <th className="px-4 py-3 text-left text-slate-400">Genre</th>
+            <th className="px-4 py-3 text-left text-slate-400">Classement</th>
+            <th className="px-4 py-3 text-left text-slate-400">Prix de location</th>
+            <th className="px-4 py-3 text-left text-slate-400">Rental Amount</th>
+          </tr>
+          </thead>
+          <tbody className="bg-white">
+            {movies.map(movie => (
+              <tr key={movie.title} className="border-x border-slate-100">
+                <td className="px-4 py-2 border-b border-slate-100 text-slate-500">{movie.title}</td>
+                <td className="px-4 py-2 border-b border-slate-100 text-slate-500">{movie.genre}</td>
+                <td className="px-4 py-2 border-b border-slate-100 text-slate-500">{movie.rating}</td>
+                <td className="px-4 py-2 border-b border-slate-100 text-slate-500">{`${movie.rental_rate} $`}</td>
+                <td className="px-4 py-2 border-b border-slate-100 text-slate-500">{movie.rental_amount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="flex justify-between w-6/12">
+          <div className="flex-1">
+            {/* Previous */}
+            <button disabled={page <= 1} onClick={() => handlePageChange(page-1)}
+              className="mx-2 px-3 bg-blue-400 text-slate-100 rounded-full disabled:bg-slate-400">{'<'}
+            </button>
+            
+            {/* First */}
+            {page > 1 ? 
+              <button onClick={() => handlePageChange(1)} 
+                className="mx-2 font-semibold text-slate-500">{'1'}
+              </button>
+              : null
+            }
+            {page > 1 ? <span className="mx-1">{'...'}</span> : null}
+            
+            {/* Current */}
+            <span className="mx-2 font-semibold text-blue-400">{page}</span>
+            
+            {/* Last */}
+            {page < Math.ceil(length / limit) ? <span className="mx-1">{'...'}</span> : null}
+            {page < Math.ceil(length / limit) ? 
+              <button onClick={() => handlePageChange(Math.ceil(length / limit))} 
+                className="mx-2 font-semibold text-slate-500">{Math.ceil(length / limit)}
+              </button>
+              : null
+            }
+            
+            {/* Previous */}
+            <button disabled={page >= Math.ceil(length / limit)} onClick={() => handlePageChange(page+1)}
+              className="mx-2 px-3 bg-blue-400 text-slate-100 rounded-full disabled:bg-slate-400">{'>'}
+            </button>
+          </div>
+          <div className="flex-1 text-right">
+            <span className="pr-2">Résultats par page :</span>
+            <input value={limit} onChange={e => handleNbResultChange(e)}
+              className="w-24 text-right px-2 border border-slate-300 rounded"/>
+          </div>
         </div>
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
     </div>
   )
 }
 
-export default Home
+export const getStaticProps: GetStaticProps = async () => {
+  const { data } = await axios.get<Data>('http://localhost:3000/api/movies/1');
+
+  return {
+      props: {
+          moviesData: data.movies,
+          length: data.length
+      }
+  }
+}
