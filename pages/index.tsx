@@ -10,16 +10,13 @@ export default function Home({ moviesData, length }: {
     length: number
   }) {
 
-
-  console.log(moviesData, length)
-
   const [movies, setMovies] = useState(moviesData)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(12)
 
   const handlePageChange = async (page: number) => {
 		setPage(page);
-		const { data } = await axios.get<Data>(`${process.env.DOMAIN}/api/movies/${page}?limit=${limit}`)
+		const { data } = await axios.get<Data>(`/api/movies/${page}?limit=${limit}`)
 		setMovies(data.movies)
 	}
 
@@ -28,9 +25,9 @@ export default function Home({ moviesData, length }: {
     setLimit(nbResult > 0 ? nbResult : 12);
   }
 
-  /**useEffect(() => {
+  useEffect(() => {
     handlePageChange(1)
-  }, [limit])/** */ //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [limit]) //eslint-disable-next-line react-hooks/exhaustive-deps
 
   return (
     <div className={styles.container}>
