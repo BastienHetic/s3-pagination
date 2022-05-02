@@ -112,12 +112,23 @@ export default function Home({ moviesData, length }: {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await axios.get<Data>(`${process.env.DOMAIN}/api/movies/1`);
+  try {
+    const { data } = await axios.get<Data>(`${process.env.DOMAIN}/api/movies/1`);
+
+    return {
+        props: {
+            moviesData: data.movies,
+            length: data.length
+        }
+    }
+  } catch (error) {
+    console.log(error);
+  }
 
   return {
-      props: {
-          moviesData: data.movies,
-          length: data.length
-      }
-  }
+    props: {
+        moviesData: [],
+        length: 0
+    }
+}
 }
